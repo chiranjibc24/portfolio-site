@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AKKI JHUKKI</title>
+
+<style>
+body { margin:0; font-family:Arial; background:#ffffff; color:rgb(0, 0, 0); }
+
+header { text-align:center; padding:20px; font-size:26px; }
+
+/* Filters */
+.filters {
+    text-align:center;
+    padding:10px;
+}
+.filters button {
+    margin:5px;
+    padding:8px 15px;
+    border:none;
+    cursor:pointer;
+    border-radius:5px;
+}
+
+/* Masonry Layout */
+.gallery {
+    column-count: 6;
+    column-gap: 2px;
+    padding: 10px;
+}
+
+@media(max-width:900px){ .gallery { column-count:2; } }
+@media(max-width:500px){ .gallery { column-count:1; } }
+
+.item {
+    break-inside: avoid;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.item img {
+    width: 75%;
+    height: 200px;       /* reduce height */
+    object-fit: cover;   /* crop nicely */
+    border-radius: 10px;
+}
+
+/* Like Button */
+.like {
+    position:absolute;
+    bottom:10px;
+    right:10px;
+    background:rgba(0,0,0,0.6);
+    padding:5px 10px;
+    border-radius:20px;
+    cursor:pointer;
+}
+
+/* Lightbox */
+.lightbox {
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.95);
+    justify-content:center;
+    align-items:center;
+}
+
+.lightbox img {
+    max-width:90%;
+    max-height:90%;
+}
+
+.close {
+    position:absolute;
+    top:20px; right:30px;
+    font-size:30px;
+    cursor:pointer;
+    color:#ffffff;
+}
+</style>
+</head>
+
+<body>
+
+<header><h1></h1>AKKI JHUKKI</h1></header>
+
+<div class="gallery" id="gallery"></div>
+
+<div class="lightbox" id="lightbox">
+    <span class="close" onclick="closeLightbox()">✖</span>
+    <img id="lightbox-img">
+</div>
+
+<script>
+const gallery = document.getElementById('gallery');
+
+/* Image Data */
+const images = [
+    {src:'images/img1.jpg', category:'section1'},
+    {src:'images/img2.jpg', category:'section1'},
+    {src:'images/img3.jpg', category:'section2'},
+    {src:'images/img4.jpg', category:'section2'},
+    {src:'images/img5.jpg', category:'section3'}
+];
+
+let currentIndex = 0;
+let filtered = [...images];
+
+/* Load Images */
+function renderImages() {
+    gallery.innerHTML = '';
+    filtered.forEach((img, index) => {
+        const div = document.createElement('div');
+        div.className = 'item';
+
+        const liked = localStorage.getItem(img.src) === 'liked';
+
+        div.innerHTML = `
+            <img src="${img.src}" loading="lazy" onclick="openLightbox(${index})">
+        `;
+
+        gallery.appendChild(div);
+    });
+}
+
+/* Like System */
+function toggleLike(e, src) {
+    e.stopPropagation();
+    if(localStorage.getItem(src)){
+        localStorage.removeItem(src);
+    } else {
+        localStorage.setItem(src, 'liked');
+    }
+    renderImages();
+}
+
+/* Filters */
+function filterImages(category) {
+    filtered = category === 'all'
+        ? images
+        : images.filter(img => img.category === category);
+
+    renderImages();
+}
+
+/* Lightbox */
+function openLightbox(index) {
+    currentIndex = index;
+    document.getElementById('lightbox').style.display = 'flex';
+    showImage();
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
+}
+
+function showImage() {
+    document.getElementById('lightbox-img').src = filtered[currentIndex].src;
+}
+
+/* Swipe Support */
+let startX = 0;
+
+document.getElementById('lightbox').addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+});
+
+document.getElementById('lightbox').addEventListener('touchend', e => {
+    let endX = e.changedTouches[0].clientX;
+
+    if(startX > endX + 50) next();
+    if(startX < endX - 50) prev();
+});
+
+function next() {
+    currentIndex = (currentIndex + 1) % filtered.length;
+    showImage();
+}
+
+function prev() {
+    currentIndex = (currentIndex - 1 + filtered.length) % filtered.length;
+    showImage();
+}
+
+/* Keyboard navigation */
+document.addEventListener('keydown', e => {
+    if(e.key === 'ArrowRight') next();
+    if(e.key === 'ArrowLeft') prev();
+    if(e.key === 'Escape') closeLightbox();
+});
+
+/* Initial Load */
+renderImages();
+</script>
+
+</body>
+</html>

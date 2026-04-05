@@ -5,6 +5,7 @@ const caption = document.getElementById('caption');
 const counter = document.getElementById('counter');
 const download = document.getElementById('download');
 
+
 let index = 0;
 let scale = 1;
 
@@ -103,3 +104,5 @@ document.addEventListener("DOMContentLoaded", () => {
   // Rebind lightbox click events
   setupGallery();
 });
+
+

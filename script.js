@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
   gallery.innerHTML += imgs + imgs;
 
   // Shuffle images
-  shuffleImages();
+ // shuffleImages();
 
   // Rebind lightbox click events
   setupGallery();
